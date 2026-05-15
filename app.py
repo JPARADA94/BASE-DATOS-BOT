@@ -9,84 +9,212 @@ import streamlit as st
 from supabase import create_client
 
 
+# =========================================================
+# CONFIGURACIÓN GENERAL
+# =========================================================
 st.set_page_config(
-    page_title="Mobil LubeSoporte | Carga de datos",
+    page_title="Sistema interno Mobil | Carga de datos",
     page_icon="🛢️",
     layout="wide",
 )
 
+
+# =========================================================
+# ESTILO VISUAL SIMPLE / MOBIL
+# =========================================================
 st.markdown(
-    '''
+    """
     <style>
-    .block-container {padding-top: 1.6rem; max-width: 1280px;}
+    .block-container {
+        padding-top: 1.5rem;
+        padding-bottom: 2rem;
+        max-width: 1180px;
+    }
+
     .hero {
-        background: linear-gradient(135deg, #0B2E63 0%, #003A8F 65%, #D71920 100%);
-        border-radius: 22px;
-        padding: 28px 32px;
+        background: linear-gradient(135deg, #0B2E63 0%, #003A8F 70%, #D71920 100%);
+        border-radius: 24px;
+        padding: 30px 34px;
         color: white;
-        box-shadow: 0 12px 30px rgba(11,46,99,0.20);
+        box-shadow: 0 14px 34px rgba(11,46,99,0.22);
         margin-bottom: 24px;
     }
-    .hero h1 {margin: 0; font-size: 2.1rem; font-weight: 800;}
-    .hero p {margin-top: 10px; font-size: 1rem; opacity: 0.95;}
-    .mobil-badge {
-        display: inline-block; background: white; color: #0B2E63;
-        padding: 6px 12px; border-radius: 999px; font-weight: 700;
-        margin-bottom: 12px; font-size: 0.85rem;
+
+    .hero-badge {
+        display: inline-block;
+        background: white;
+        color: #0B2E63;
+        padding: 7px 14px;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 0.86rem;
+        margin-bottom: 14px;
     }
+
+    .hero h1 {
+        margin: 0;
+        font-size: 2.15rem;
+        font-weight: 850;
+        letter-spacing: -0.5px;
+    }
+
+    .hero p {
+        margin-top: 10px;
+        font-size: 1.03rem;
+        opacity: 0.95;
+        max-width: 850px;
+    }
+
     .section-card {
-        border: 1px solid #E5E7EB; border-radius: 18px;
-        padding: 20px 22px; background: #FFFFFF;
-        box-shadow: 0 8px 20px rgba(16,24,40,0.06);
+        border: 1px solid #E5E7EB;
+        border-radius: 20px;
+        padding: 22px 24px;
+        background: #FFFFFF;
+        box-shadow: 0 8px 22px rgba(16,24,40,0.06);
         margin-bottom: 18px;
     }
+
+    .simple-step {
+        background: #F8FAFC;
+        border: 1px solid #E5E7EB;
+        border-radius: 18px;
+        padding: 16px 18px;
+        height: 100%;
+    }
+
+    .step-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        background: #0B2E63;
+        color: white;
+        border-radius: 999px;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .step-title {
+        font-weight: 800;
+        color: #0B2E63;
+        margin-bottom: 4px;
+    }
+
+    .step-text {
+        color: #667085;
+        font-size: 0.93rem;
+    }
+
     .metric-card {
-        border-radius: 16px; background: #F8FAFC;
-        border: 1px solid #E5E7EB; padding: 18px;
+        border-radius: 18px;
+        background: #F8FAFC;
+        border: 1px solid #E5E7EB;
+        padding: 18px;
+        min-height: 112px;
     }
-    .metric-label {font-size: 0.85rem; color: #667085; margin-bottom: 6px;}
-    .metric-value {font-size: 2rem; color: #0B2E63; font-weight: 800;}
+
+    .metric-label {
+        font-size: 0.88rem;
+        color: #667085;
+        margin-bottom: 8px;
+    }
+
+    .metric-value {
+        font-size: 2.05rem;
+        color: #0B2E63;
+        font-weight: 850;
+        line-height: 1.05;
+    }
+
     .ok-box {
-        background: #EAF7EF; border-left: 5px solid #2E7D32;
-        padding: 14px 16px; border-radius: 12px; color: #174A28; margin: 10px 0;
+        background: #EAF7EF;
+        border-left: 5px solid #2E7D32;
+        padding: 14px 16px;
+        border-radius: 14px;
+        color: #174A28;
+        margin: 12px 0;
+        font-weight: 650;
     }
+
     .warn-box {
-        background: #FFF7E6; border-left: 5px solid #F59E0B;
-        padding: 14px 16px; border-radius: 12px; color: #7A4B00; margin: 10px 0;
+        background: #FFF7E6;
+        border-left: 5px solid #F59E0B;
+        padding: 14px 16px;
+        border-radius: 14px;
+        color: #7A4B00;
+        margin: 12px 0;
+        font-weight: 650;
     }
+
     .error-box {
-        background: #FDECEC; border-left: 5px solid #D71920;
-        padding: 14px 16px; border-radius: 12px; color: #7F1D1D; margin: 10px 0;
+        background: #FDECEC;
+        border-left: 5px solid #D71920;
+        padding: 14px 16px;
+        border-radius: 14px;
+        color: #7F1D1D;
+        margin: 12px 0;
+        font-weight: 650;
     }
+
     div.stButton > button:first-child {
-        border-radius: 12px; border: 1px solid #0B2E63;
-        background: #0B2E63; color: white; font-weight: 700;
+        border-radius: 14px;
+        border: 1px solid #0B2E63;
+        background: #0B2E63;
+        color: white;
+        font-weight: 800;
+        padding: 0.65rem 1.15rem;
     }
+
     div.stDownloadButton > button:first-child {
-        border-radius: 12px; border: 1px solid #003A8F;
-        color: #003A8F; font-weight: 700;
+        border-radius: 14px;
+        border: 1px solid #003A8F;
+        color: #003A8F;
+        font-weight: 800;
+        padding: 0.65rem 1.15rem;
     }
-    .footer-note {color: #667085; font-size: 0.85rem; margin-top: 20px;}
+
+    [data-testid="stFileUploader"] {
+        border: 1px dashed #B8C5D6;
+        border-radius: 20px;
+        padding: 18px;
+        background: #F8FAFC;
+    }
+
+    .footer-note {
+        color: #667085;
+        font-size: 0.86rem;
+        margin-top: 18px;
+        text-align: center;
+    }
+
+    .small-muted {
+        color: #667085;
+        font-size: 0.9rem;
+    }
     </style>
-    ''',
+    """,
     unsafe_allow_html=True,
 )
 
 st.markdown(
-    '''
+    """
     <div class="hero">
-        <div class="mobil-badge">Mobil | LubeSoporte</div>
-        <h1>🛢️ Carga controlada de análisis de lubricantes</h1>
+        <div class="hero-badge">Mobil | Sistema interno</div>
+        <h1>🛢️ Carga de análisis de lubricantes</h1>
         <p>
-            Transforma archivos SmartAssistence, valida estructura, controla duplicados por
-            <b>N_MUESTRA</b> y alimenta la base de datos del chatbot.
+            Herramienta para preparar y cargar archivos de análisis al chatbot de lubricación.
+            Solo debes subir el Excel, revisar el resumen y confirmar la carga.
         </p>
     </div>
-    ''',
+    """,
     unsafe_allow_html=True,
 )
 
 
+# =========================================================
+# CONEXIÓN INTERNA
+# =========================================================
 def obtener_secret(nombre: str, default: str = "") -> str:
     try:
         return str(st.secrets.get(nombre, default)).strip()
@@ -98,14 +226,17 @@ SUPABASE_URL = obtener_secret("SUPABASE_URL")
 SUPABASE_KEY = obtener_secret("SUPABASE_KEY")
 SUPABASE_TABLE = obtener_secret("SUPABASE_TABLE", "ECOPETROL_COLOMBIA_DIC_2025")
 
-supabase = None
+conexion = None
 if SUPABASE_URL and SUPABASE_KEY:
     try:
-        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-    except Exception as e:
-        st.error(f"No fue posible crear la conexión a Supabase: {e}")
+        conexion = create_client(SUPABASE_URL, SUPABASE_KEY)
+    except Exception:
+        conexion = None
 
 
+# =========================================================
+# UTILIDADES
+# =========================================================
 def col_index_to_letter(idx: int) -> str:
     s = ""
     i = int(idx)
@@ -159,37 +290,46 @@ def obtener_nombre_cuenta(df: pd.DataFrame) -> str:
     return "CUENTA_SIN_NOMBRE"
 
 
-def limpiar_valor_json(v):
+def limpiar_valor(v):
     if v is None:
         return None
+
     try:
         if pd.isna(v):
             return None
     except Exception:
         pass
-    if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
-        return None
+
+    if isinstance(v, float):
+        if math.isnan(v) or math.isinf(v):
+            return None
+
     if isinstance(v, pd.Timestamp):
         return v.isoformat()
+
     if isinstance(v, str):
         t = v.strip()
         if t.lower() in ["nan", "nat", "none", "null", "<na>"]:
             return None
         return t
+
     return v
 
 
-def preparar_dataframe_para_json(df: pd.DataFrame) -> pd.DataFrame:
+def preparar_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     df2 = df.copy().astype(object)
     df2 = df2.where(pd.notna(df2), None)
     for col in df2.columns:
-        df2[col] = df2[col].map(limpiar_valor_json)
+        df2[col] = df2[col].map(limpiar_valor)
     return df2
 
 
-def df_to_records_json_safe(df: pd.DataFrame) -> list[dict]:
-    df2 = preparar_dataframe_para_json(df)
-    return [{k: limpiar_valor_json(v) for k, v in row.items()} for row in df2.to_dict(orient="records")]
+def dataframe_a_registros(df: pd.DataFrame) -> list[dict]:
+    df2 = preparar_dataframe(df)
+    return [
+        {k: limpiar_valor(v) for k, v in row.items()}
+        for row in df2.to_dict(orient="records")
+    ]
 
 
 def normalizar_n_muestra(v) -> str:
@@ -201,52 +341,67 @@ def normalizar_n_muestra(v) -> str:
     return t
 
 
-def validar_secretos():
-    faltantes = []
-    if not SUPABASE_URL:
-        faltantes.append("SUPABASE_URL")
-    if not SUPABASE_KEY:
-        faltantes.append("SUPABASE_KEY")
-    if not SUPABASE_TABLE:
-        faltantes.append("SUPABASE_TABLE")
-    return faltantes
+def faltan_datos_conexion() -> bool:
+    return not (SUPABASE_URL and SUPABASE_KEY and SUPABASE_TABLE and conexion)
 
 
-def consultar_existentes_supabase(n_muestras: list[str]) -> set[str]:
+def consultar_registros_existentes(n_muestras: list[str]) -> set[str]:
     existentes = set()
     valores = [normalizar_n_muestra(x) for x in n_muestras if normalizar_n_muestra(x)]
     valores = list(dict.fromkeys(valores))
+
     for i in range(0, len(valores), 500):
         lote = valores[i:i + 500]
-        resp = supabase.table(SUPABASE_TABLE).select("N_MUESTRA").in_("N_MUESTRA", lote).execute()
-        for row in resp.data or []:
+        respuesta = (
+            conexion
+            .table(SUPABASE_TABLE)
+            .select("N_MUESTRA")
+            .in_("N_MUESTRA", lote)
+            .execute()
+        )
+        for row in respuesta.data or []:
             existentes.add(normalizar_n_muestra(row.get("N_MUESTRA")))
+
     return existentes
 
 
-def eliminar_existentes_supabase(n_muestras: list[str]):
+def eliminar_registros_existentes(n_muestras: list[str]):
     valores = [normalizar_n_muestra(x) for x in n_muestras if normalizar_n_muestra(x)]
     valores = list(dict.fromkeys(valores))
+
     for i in range(0, len(valores), 300):
         lote = valores[i:i + 300]
-        supabase.table(SUPABASE_TABLE).delete().in_("N_MUESTRA", lote).execute()
+        (
+            conexion
+            .table(SUPABASE_TABLE)
+            .delete()
+            .in_("N_MUESTRA", lote)
+            .execute()
+        )
 
 
-def insertar_supabase(df: pd.DataFrame, batch_size: int = 300):
-    registros = df_to_records_json_safe(df)
+def cargar_registros(df: pd.DataFrame, batch_size: int = 300) -> int:
+    registros = dataframe_a_registros(df)
     total = len(registros)
+
     if total == 0:
         return 0
+
     barra = st.progress(0)
     cargados = 0
+
     for i in range(0, total, batch_size):
         lote = registros[i:i + batch_size]
-        supabase.table(SUPABASE_TABLE).insert(lote).execute()
+        conexion.table(SUPABASE_TABLE).insert(lote).execute()
         cargados += len(lote)
         barra.progress(min(cargados / total, 1.0))
+
     return cargados
 
 
+# =========================================================
+# ENCABEZADOS BASE
+# =========================================================
 REQUERIDOS = [
     "NOMBRE_CLIENTE","NOMBRE_OPERACION","N_MUESTRA","CORRELATIVO","FECHA_MUESTREO","FECHA_INGRESO",
     "FECHA_RECEPCION","FECHA_INFORME","EDAD_COMPONENTE","UNIDAD_EDAD_COMPONENTE","EDAD_PRODUCTO",
@@ -284,29 +439,63 @@ REQUERIDOS = [
 ]
 
 NUEVAS_ESTADO = [
-    "ESTADO_MUESTRA","AGUA (IR) - 74","AGUA (IR) - 74 - Estado","AGUA (IR) - 81 - Estado",
-    "AGUA LIBRE - 416 - Estado","AGUA CUALITATIVA (PLANCHA) - 360 - Estado",
-    "ALUMINIO (AL) - 20 - Estado","BARIO (BA) - 21 - Estado","BORO (B) - 18 - Estado",
-    "CALCIO (CA) - 22 - Estado","CADMIO (CD) - 23 - Estado","COBRE (CU) - 25 - Estado",
-    "COBRE (CU) - 119 - Estado","CROMO (CR) - 24 - Estado","HIERRO (FE) - 26 - Estado",
-    "MAGNESIO (MG) - 28 - Estado","MANGANESO (MN) - 29 - Estado","MOLIBDENO (MO) - 30 - Estado",
-    "NÍQUEL (NI) - 32 - Estado","PLATA (AG) - 19 - Estado","PLOMO (PB) - 35 - Estado",
-    "POTASIO (K) - 27 - Estado","SILICIO (SI) - 36 - Estado","SODIO (NA) - 31 - Estado",
-    "TITANIO (TI) - 38 - Estado","VANADIO (V) - 39 - Estado","ZINC (ZN) - 40 - Estado",
-    "ESTAÑO (SN) - 37 - Estado","FÓSFORO (P) - 34 - Estado",
-    "CÓDIGO ISO (4/6/14) - 47 - Estado","CONTEO PARTÍCULAS >= 4 ΜM - 49 - Estado",
-    "CONTEO PARTÍCULAS >= 6 ΜM - 50 - Estado","CONTEO PARTÍCULAS >= 14 ΜM - 48 - Estado",
-    "OXIDACIÓN - 80 - Estado","NITRACIÓN - 82 - Estado","ÍNDICE PQ (PQI) - 3 - Estado",
-    "NÚMERO ÁCIDO (AN) - 43 - Estado","NÚMERO BÁSICO (BN) - 12 - Estado",
-    "NÚMERO BÁSICO (BN) - 17 - Estado","CONTENIDO AGUA (KARL FISCHER) - 41 - Estado",
-    "ANÁLISIS ANTIOXIDANTES (AMINA) - 44 - Estado","ANÁLISIS ANTIOXIDANTES (FENOL) - 45 - Estado",
-    "HOLLÍN - 73","HOLLÍN - 73 - Estado","HOLLÍN - 79 - Estado",
-    "DILUCIÓN POR COMBUSTIBLE - 46 - Estado","VISCOSIDAD A 40 °C - 14 - Estado",
-    "VISCOSIDAD A 100 °C - 13 - Estado","ÍNDICE VISCOSIDAD - 359 - Estado",
-    "ESPUMA SEC 1 - ESTABILIDAD - 60 - Estado","ESPUMA SEC 1 - TENDENCIA - 59 - Estado",
-    "COLORIMETRÍA MEMBRANA DE PARCHE (MPC) - 51 - Estado","RESIDUO CARBÓN (MCR) - 361",
-    "RESIDUO CARBÓN (MCR) - 361 - Estado","PUNTO DE INFLAMACIÓN (PMA) - 61",
-    "PUNTO DE INFLAMACIÓN (PMA) - 61 - Estado","RPVOT - 10 - Estado",
+    "ESTADO_MUESTRA",
+    "AGUA (IR) - 74",
+    "AGUA (IR) - 74 - Estado",
+    "AGUA (IR) - 81 - Estado",
+    "AGUA LIBRE - 416 - Estado",
+    "AGUA CUALITATIVA (PLANCHA) - 360 - Estado",
+    "ALUMINIO (AL) - 20 - Estado",
+    "BARIO (BA) - 21 - Estado",
+    "BORO (B) - 18 - Estado",
+    "CALCIO (CA) - 22 - Estado",
+    "CADMIO (CD) - 23 - Estado",
+    "COBRE (CU) - 25 - Estado",
+    "COBRE (CU) - 119 - Estado",
+    "CROMO (CR) - 24 - Estado",
+    "HIERRO (FE) - 26 - Estado",
+    "MAGNESIO (MG) - 28 - Estado",
+    "MANGANESO (MN) - 29 - Estado",
+    "MOLIBDENO (MO) - 30 - Estado",
+    "NÍQUEL (NI) - 32 - Estado",
+    "PLATA (AG) - 19 - Estado",
+    "PLOMO (PB) - 35 - Estado",
+    "POTASIO (K) - 27 - Estado",
+    "SILICIO (SI) - 36 - Estado",
+    "SODIO (NA) - 31 - Estado",
+    "TITANIO (TI) - 38 - Estado",
+    "VANADIO (V) - 39 - Estado",
+    "ZINC (ZN) - 40 - Estado",
+    "ESTAÑO (SN) - 37 - Estado",
+    "FÓSFORO (P) - 34 - Estado",
+    "CÓDIGO ISO (4/6/14) - 47 - Estado",
+    "CONTEO PARTÍCULAS >= 4 ΜM - 49 - Estado",
+    "CONTEO PARTÍCULAS >= 6 ΜM - 50 - Estado",
+    "CONTEO PARTÍCULAS >= 14 ΜM - 48 - Estado",
+    "OXIDACIÓN - 80 - Estado",
+    "NITRACIÓN - 82 - Estado",
+    "ÍNDICE PQ (PQI) - 3 - Estado",
+    "NÚMERO ÁCIDO (AN) - 43 - Estado",
+    "NÚMERO BÁSICO (BN) - 12 - Estado",
+    "NÚMERO BÁSICO (BN) - 17 - Estado",
+    "CONTENIDO AGUA (KARL FISCHER) - 41 - Estado",
+    "ANÁLISIS ANTIOXIDANTES (AMINA) - 44 - Estado",
+    "ANÁLISIS ANTIOXIDANTES (FENOL) - 45 - Estado",
+    "HOLLÍN - 73",
+    "HOLLÍN - 73 - Estado",
+    "HOLLÍN - 79 - Estado",
+    "DILUCIÓN POR COMBUSTIBLE - 46 - Estado",
+    "VISCOSIDAD A 40 °C - 14 - Estado",
+    "VISCOSIDAD A 100 °C - 13 - Estado",
+    "ÍNDICE VISCOSIDAD - 359 - Estado",
+    "ESPUMA SEC 1 - ESTABILIDAD - 60 - Estado",
+    "ESPUMA SEC 1 - TENDENCIA - 59 - Estado",
+    "COLORIMETRÍA MEMBRANA DE PARCHE (MPC) - 51 - Estado",
+    "RESIDUO CARBÓN (MCR) - 361",
+    "RESIDUO CARBÓN (MCR) - 361 - Estado",
+    "PUNTO DE INFLAMACIÓN (PMA) - 61",
+    "PUNTO DE INFLAMACIÓN (PMA) - 61 - Estado",
+    "RPVOT - 10 - Estado",
     "SEPARABILIDAD AGUA A 54 °C (ACEITE) - 6 - Estado",
     "SEPARABILIDAD AGUA A 54 °C (AGUA) - 7 - Estado",
     "SEPARABILIDAD AGUA A 54 °C (EMULSIÓN) - 8 - Estado",
@@ -315,8 +504,12 @@ NUEVAS_ESTADO = [
 ]
 
 ALIASES_ENTRADA = {
-    "COLORIMETRÍA MEMBRANA DE PARCHE (MPC) - 51": ["** COLORIMETRÍA MEMBRANA DE PARCHE (MPC) - 51"],
-    "COLORIMETRÍA MEMBRANA DE PARCHE (MPC) - 51 - Estado": ["** COLORIMETRÍA MEMBRANA DE PARCHE (MPC) - 51 - Estado"],
+    "COLORIMETRÍA MEMBRANA DE PARCHE (MPC) - 51": [
+        "** COLORIMETRÍA MEMBRANA DE PARCHE (MPC) - 51"
+    ],
+    "COLORIMETRÍA MEMBRANA DE PARCHE (MPC) - 51 - Estado": [
+        "** COLORIMETRÍA MEMBRANA DE PARCHE (MPC) - 51 - Estado"
+    ],
 }
 
 
@@ -334,18 +527,56 @@ def encontrar_columna_origen(cols_norm_map: dict, nombre_salida: str) -> str | N
 
 COLUMNAS_USADAS = REQUERIDOS + NUEVAS_ESTADO
 
-with st.sidebar:
-    st.markdown("### ⚙️ Configuración")
-    st.caption("Tabla destino")
-    st.code(SUPABASE_TABLE or "No configurado", language="text")
-    if supabase:
-        st.success("Conexión Supabase configurada")
-    else:
-        st.error("Faltan Secrets de Supabase")
+
+# =========================================================
+# FLUJO SIMPLE
+# =========================================================
+st.markdown('<div class="section-card">', unsafe_allow_html=True)
+st.subheader("Proceso de carga")
+
+p1, p2, p3 = st.columns(3)
+with p1:
+    st.markdown(
+        """
+        <div class="simple-step">
+            <div class="step-number">1</div>
+            <div class="step-title">Subir archivo</div>
+            <div class="step-text">Selecciona el Excel exportado desde SmartAssistence.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with p2:
+    st.markdown(
+        """
+        <div class="simple-step">
+            <div class="step-number">2</div>
+            <div class="step-title">Revisar resumen</div>
+            <div class="step-text">Verifica cuántos registros serán preparados.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with p3:
+    st.markdown(
+        """
+        <div class="simple-step">
+            <div class="step-number">3</div>
+            <div class="step-title">Cargar datos</div>
+            <div class="step-text">Confirma la carga para alimentar el chatbot.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown('<div class="section-card">', unsafe_allow_html=True)
-st.subheader("1. Cargar archivo SmartAssistence")
-files = st.file_uploader("📤 Sube uno o varios Excel exportados desde SmartAssistence (.xlsx)", type="xlsx", accept_multiple_files=True)
+st.subheader("1. Subir archivo Excel")
+files = st.file_uploader(
+    "Seleccione uno o varios archivos Excel",
+    type="xlsx",
+    accept_multiple_files=True,
+)
 st.markdown("</div>", unsafe_allow_html=True)
 
 if files:
@@ -359,13 +590,21 @@ if files:
 
         faltantes = []
         for col_salida in COLUMNAS_USADAS:
-            if encontrar_columna_origen(cols_norm, col_salida) is None:
+            col_origen = encontrar_columna_origen(cols_norm, col_salida)
+            if col_origen is None:
                 faltantes.append(col_salida)
 
         if faltantes:
-            st.markdown('<div class="error-box">❌ Faltan encabezados requeridos. No se puede continuar.</div>', unsafe_allow_html=True)
-            st.write(f"Archivo: **{f.name}**")
-            st.dataframe(pd.DataFrame({"Encabezado faltante esperado en salida": faltantes}), use_container_width=True)
+            st.markdown(
+                '<div class="error-box">❌ El archivo no tiene la estructura esperada. Revise que sea el Excel exportado desde SmartAssistence.</div>',
+                unsafe_allow_html=True,
+            )
+            with st.expander("Ver detalle para soporte"):
+                st.write(f"Archivo: **{f.name}**")
+                st.dataframe(
+                    pd.DataFrame({"Encabezado faltante": faltantes}),
+                    use_container_width=True,
+                )
             st.stop()
 
         usadas_norm = set()
@@ -376,12 +615,20 @@ if files:
         for idx, c in enumerate(cols):
             if normalizar(c) in usadas_norm:
                 continue
+
             serie = df[c].astype(str).str.strip().replace({"": pd.NA, "nan": pd.NA, "None": pd.NA})
             n = int(serie.notna().sum())
+
             if n > 0:
-                extras_global.append({"Archivo": f.name, "Encabezado NO usado": c, "Registros con datos": n, "Posición": col_index_to_letter(idx)})
+                extras_global.append({
+                    "Archivo": f.name,
+                    "Columna no usada": c,
+                    "Registros con datos": n,
+                    "Posición": col_index_to_letter(idx),
+                })
 
         df_out = pd.DataFrame()
+
         for col_salida in REQUERIDOS:
             col_origen = encontrar_columna_origen(cols_norm, col_salida)
             df_out[col_salida] = df[col_origen]
@@ -398,11 +645,12 @@ if files:
     df_final = pd.concat(dfs_out, ignore_index=True)
 
     df_final["N_MUESTRA"] = df_final["N_MUESTRA"].map(normalizar_n_muestra)
-    sin_n_muestra = df_final[df_final["N_MUESTRA"] == ""]
+
+    registros_sin_numero = df_final[df_final["N_MUESTRA"] == ""]
     df_final = df_final[df_final["N_MUESTRA"] != ""].copy()
 
-    duplicados_internos = df_final[df_final.duplicated(subset=["N_MUESTRA"], keep=False)].copy()
-    if not duplicados_internos.empty:
+    duplicados_archivo = df_final[df_final.duplicated(subset=["N_MUESTRA"], keep=False)].copy()
+    if not duplicados_archivo.empty:
         df_final = (
             df_final
             .sort_values(["N_MUESTRA", "FECHA_INFORME"], na_position="first")
@@ -410,108 +658,159 @@ if files:
             .reset_index(drop=True)
         )
 
-    df_final_json_safe = preparar_dataframe_para_json(df_final)
+    df_final_limpio = preparar_dataframe(df_final)
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.subheader("2. Resultado de la transformación")
+    st.subheader("2. Resumen del archivo")
+
     c1, c2, c3, c4 = st.columns(4)
     with c1:
-        st.markdown(f'<div class="metric-card"><div class="metric-label">Archivos procesados</div><div class="metric-value">{len(files)}</div></div>', unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="metric-card"><div class="metric-label">Archivos procesados</div><div class="metric-value">{len(files)}</div></div>',
+            unsafe_allow_html=True,
+        )
     with c2:
-        st.markdown(f'<div class="metric-card"><div class="metric-label">Filas finales</div><div class="metric-value">{len(df_final)}</div></div>', unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="metric-card"><div class="metric-label">Registros listos</div><div class="metric-value">{len(df_final_limpio)}</div></div>',
+            unsafe_allow_html=True,
+        )
     with c3:
-        st.markdown(f'<div class="metric-card"><div class="metric-label">Duplicados internos removidos</div><div class="metric-value">{duplicados_internos["N_MUESTRA"].nunique() if not duplicados_internos.empty else 0}</div></div>', unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="metric-card"><div class="metric-label">Duplicados removidos</div><div class="metric-value">{duplicados_archivo["N_MUESTRA"].nunique() if not duplicados_archivo.empty else 0}</div></div>',
+            unsafe_allow_html=True,
+        )
     with c4:
-        st.markdown(f'<div class="metric-card"><div class="metric-label">Sin N_MUESTRA removidas</div><div class="metric-value">{len(sin_n_muestra)}</div></div>', unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="metric-card"><div class="metric-label">Registros incompletos removidos</div><div class="metric-value">{len(registros_sin_numero)}</div></div>',
+            unsafe_allow_html=True,
+        )
 
-    st.markdown('<div class="ok-box">✅ Conversión completada. También se corrigió el problema de NaN para que Supabase acepte el JSON.</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="ok-box">✅ Archivo validado correctamente y listo para cargar.</div>',
+        unsafe_allow_html=True,
+    )
+
+    with st.expander("Ver vista previa de los registros"):
+        st.dataframe(df_final_limpio.head(30), use_container_width=True)
 
     if extras_global:
-        with st.expander("⚠️ Ver columnas con datos que no se usan en la salida"):
+        with st.expander("Avisos para soporte: columnas con datos no usadas"):
             st.dataframe(pd.DataFrame(extras_global), use_container_width=True)
 
-    if not duplicados_internos.empty:
-        with st.expander("⚠️ Ver N_MUESTRA duplicadas dentro del archivo cargado"):
-            st.dataframe(duplicados_internos[["N_MUESTRA", "COMPONENTE", "FECHA_INFORME", "Archivo_Origen"]], use_container_width=True)
+    if not duplicados_archivo.empty:
+        with st.expander("Avisos para soporte: registros duplicados encontrados"):
+            st.dataframe(
+                duplicados_archivo[["N_MUESTRA", "COMPONENTE", "FECHA_INFORME", "Archivo_Origen"]],
+                use_container_width=True,
+            )
 
-    st.dataframe(df_final_json_safe.head(30), use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
-    nombre_cuenta = obtener_nombre_cuenta(df_final)
+    nombre_cuenta = obtener_nombre_cuenta(df_final_limpio)
     fecha_hora = datetime.now().strftime("%Y%m%d_%H%M%S")
     nombre_excel = f"{nombre_cuenta}_{fecha_hora}.xlsx"
     nombre_csv = f"{nombre_cuenta}_{fecha_hora}.csv"
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.subheader("3. Descarga de respaldo")
+    st.subheader("Descarga de respaldo")
     d1, d2 = st.columns(2)
     with d1:
-        st.download_button("📥 Descargar Excel transformado", df_to_xlsx_bytes(df_final_json_safe), file_name=nombre_excel, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        st.download_button(
+            "📥 Descargar Excel preparado",
+            df_to_xlsx_bytes(df_final_limpio),
+            file_name=nombre_excel,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
     with d2:
-        st.download_button("📥 Descargar CSV transformado", df_to_csv_bytes(df_final_json_safe), file_name=nombre_csv, mime="text/csv")
+        st.download_button(
+            "📥 Descargar CSV preparado",
+            df_to_csv_bytes(df_final_limpio),
+            file_name=nombre_csv,
+            mime="text/csv",
+        )
     st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.subheader("4. Verificación y carga a Supabase")
+    st.subheader("3. Cargar datos al chatbot")
 
-    faltantes_secretos = validar_secretos()
-    if faltantes_secretos:
-        st.markdown(f'<div class="error-box">❌ Faltan Secrets en Streamlit: {", ".join(faltantes_secretos)}</div>', unsafe_allow_html=True)
+    if faltan_datos_conexion():
+        st.markdown(
+            '<div class="error-box">❌ La aplicación no está lista para cargar datos. Contacte al administrador.</div>',
+            unsafe_allow_html=True,
+        )
         st.stop()
 
-    if not supabase:
-        st.markdown('<div class="error-box">❌ No hay conexión activa con Supabase.</div>', unsafe_allow_html=True)
-        st.stop()
+    if st.button("🔎 Verificar registros existentes"):
+        with st.spinner("Verificando registros..."):
+            existentes = consultar_registros_existentes(df_final_limpio["N_MUESTRA"].tolist())
+        st.session_state["registros_existentes"] = list(existentes)
 
-    st.caption(f"Tabla destino: {SUPABASE_TABLE}")
+    existentes = set(st.session_state.get("registros_existentes", []))
 
-    if st.button("🔎 Verificar contra Supabase antes de cargar"):
-        with st.spinner("Consultando N_MUESTRA existentes en Supabase..."):
-            existentes = consultar_existentes_supabase(df_final["N_MUESTRA"].tolist())
-        st.session_state["existentes_supabase"] = list(existentes)
+    nuevos_df = df_final_limpio[~df_final_limpio["N_MUESTRA"].isin(existentes)].copy()
+    existentes_df = df_final_limpio[df_final_limpio["N_MUESTRA"].isin(existentes)].copy()
 
-    existentes = set(st.session_state.get("existentes_supabase", []))
-    nuevas_df = df_final_json_safe[~df_final_json_safe["N_MUESTRA"].isin(existentes)].copy()
-    existentes_df = df_final_json_safe[df_final_json_safe["N_MUESTRA"].isin(existentes)].copy()
-
-    m1, m2 = st.columns(2)
-    with m1:
-        st.markdown(f'<div class="metric-card"><div class="metric-label">Muestras nuevas</div><div class="metric-value">{len(nuevas_df)}</div></div>', unsafe_allow_html=True)
-    with m2:
-        st.markdown(f'<div class="metric-card"><div class="metric-label">Muestras ya existentes</div><div class="metric-value">{len(existentes_df)}</div></div>', unsafe_allow_html=True)
+    r1, r2 = st.columns(2)
+    with r1:
+        st.markdown(
+            f'<div class="metric-card"><div class="metric-label">Registros nuevos</div><div class="metric-value">{len(nuevos_df)}</div></div>',
+            unsafe_allow_html=True,
+        )
+    with r2:
+        st.markdown(
+            f'<div class="metric-card"><div class="metric-label">Registros ya cargados</div><div class="metric-value">{len(existentes_df)}</div></div>',
+            unsafe_allow_html=True,
+        )
 
     if len(existentes_df) > 0:
-        with st.expander("Ver N_MUESTRA que ya existen en Supabase"):
-            st.dataframe(existentes_df[["N_MUESTRA", "COMPONENTE", "FECHA_INFORME", "Archivo_Origen"]], use_container_width=True)
+        with st.expander("Ver registros ya cargados"):
+            st.dataframe(
+                existentes_df[["N_MUESTRA", "COMPONENTE", "FECHA_INFORME", "Archivo_Origen"]],
+                use_container_width=True,
+            )
 
     accion = st.radio(
-        "¿Qué hacer si N_MUESTRA ya existe en Supabase?",
-        ["Insertar solo muestras nuevas", "Reemplazar muestras existentes y luego insertar"],
+        "Seleccione cómo desea continuar",
+        [
+            "Cargar solo registros nuevos",
+            "Actualizar registros existentes y cargar todo el archivo",
+        ],
         index=0,
     )
 
-    df_cargar = nuevas_df.copy()
-    if accion == "Reemplazar muestras existentes y luego insertar":
-        df_cargar = df_final_json_safe.copy()
+    df_cargar = nuevos_df.copy()
+    if accion == "Actualizar registros existentes y cargar todo el archivo":
+        df_cargar = df_final_limpio.copy()
 
-    confirmar = st.checkbox("Confirmo que revisé la transformación y autorizo la carga a Supabase")
-    st.info(f"Filas que se cargarán: {len(df_cargar)}")
+    st.info(f"Registros que se cargarán: {len(df_cargar)}")
 
-    if confirmar and st.button("🚀 Subir definitivamente a Supabase"):
+    confirmar = st.checkbox("Confirmo que revisé el resumen y autorizo la carga")
+
+    if confirmar and st.button("🚀 Cargar datos al chatbot"):
         if len(df_cargar) == 0:
-            st.warning("No hay filas nuevas para cargar.")
+            st.warning("No hay registros nuevos para cargar.")
         else:
             try:
-                with st.spinner("Cargando información a Supabase..."):
-                    if accion == "Reemplazar muestras existentes y luego insertar" and len(existentes_df) > 0:
-                        eliminar_existentes_supabase(existentes_df["N_MUESTRA"].tolist())
-                    cargados = insertar_supabase(df_cargar, batch_size=300)
-                st.markdown(f'<div class="ok-box">✅ Carga finalizada correctamente. Registros cargados: {cargados}</div>', unsafe_allow_html=True)
-            except Exception as e:
-                st.markdown(f'<div class="error-box">❌ Error cargando a Supabase: {e}</div>', unsafe_allow_html=True)
+                with st.spinner("Cargando datos. Por favor espere..."):
+                    if accion == "Actualizar registros existentes y cargar todo el archivo" and len(existentes_df) > 0:
+                        eliminar_registros_existentes(existentes_df["N_MUESTRA"].tolist())
+
+                    total_cargados = cargar_registros(df_cargar, batch_size=300)
+
+                st.markdown(
+                    f'<div class="ok-box">✅ Carga completada correctamente. Registros cargados: {total_cargados}</div>',
+                    unsafe_allow_html=True,
+                )
+
+            except Exception:
+                st.markdown(
+                    '<div class="error-box">❌ No fue posible completar la carga. Contacte al administrador.</div>',
+                    unsafe_allow_html=True,
+                )
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown('<div class="footer-note">Mobil LubeSoporte · Herramienta interna para alimentar la base del chatbot.</div>', unsafe_allow_html=True)
-
-
+st.markdown(
+    '<div class="footer-note">Mobil LubeSoporte · Herramienta interna para alimentación del chatbot.</div>',
+    unsafe_allow_html=True,
+)
