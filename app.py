@@ -365,20 +365,6 @@ def consultar_registros_existentes(n_muestras: list[str]) -> set[str]:
     return existentes
 
 
-def eliminar_registros_existentes(n_muestras: list[str]):
-    valores = [normalizar_n_muestra(x) for x in n_muestras if normalizar_n_muestra(x)]
-    valores = list(dict.fromkeys(valores))
-
-    for i in range(0, len(valores), 300):
-        lote = valores[i:i + 300]
-        (
-            conexion
-            .table(SUPABASE_TABLE)
-            .delete()
-            .in_("N_MUESTRA", lote)
-            .execute()
-        )
-
 
 def cargar_registros(df: pd.DataFrame, batch_size: int = 300) -> int:
     registros = dataframe_a_registros(df)
@@ -552,7 +538,7 @@ with p2:
         <div class="simple-step">
             <div class="step-number">2</div>
             <div class="step-title">Revisar resumen</div>
-            <div class="step-text">Verifica cuántos registros serán preparados.</div>
+            <div class="step-text">Revisa cuántos registros están listos para cargar.</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -649,21 +635,12 @@ if files:
     registros_sin_numero = df_final[df_final["N_MUESTRA"] == ""]
     df_final = df_final[df_final["N_MUESTRA"] != ""].copy()
 
-    duplicados_archivo = df_final[df_final.duplicated(subset=["N_MUESTRA"], keep=False)].copy()
-    if not duplicados_archivo.empty:
-        df_final = (
-            df_final
-            .sort_values(["N_MUESTRA", "FECHA_INFORME"], na_position="first")
-            .drop_duplicates(subset=["N_MUESTRA"], keep="last")
-            .reset_index(drop=True)
-        )
-
     df_final_limpio = preparar_dataframe(df_final)
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
     st.subheader("2. Resumen del archivo")
 
-    c1, c2, c3, c4 = st.columns(4)
+    c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown(
             f'<div class="metric-card"><div class="metric-label">Archivos procesados</div><div class="metric-value">{len(files)}</div></div>',
@@ -675,11 +652,6 @@ if files:
             unsafe_allow_html=True,
         )
     with c3:
-        st.markdown(
-            f'<div class="metric-card"><div class="metric-label">Duplicados removidos</div><div class="metric-value">{duplicados_archivo["N_MUESTRA"].nunique() if not duplicados_archivo.empty else 0}</div></div>',
-            unsafe_allow_html=True,
-        )
-    with c4:
         st.markdown(
             f'<div class="metric-card"><div class="metric-label">Registros incompletos removidos</div><div class="metric-value">{len(registros_sin_numero)}</div></div>',
             unsafe_allow_html=True,
@@ -696,13 +668,6 @@ if files:
     if extras_global:
         with st.expander("Avisos para soporte: columnas con datos no usadas"):
             st.dataframe(pd.DataFrame(extras_global), use_container_width=True)
-
-    if not duplicados_archivo.empty:
-        with st.expander("Avisos para soporte: registros duplicados encontrados"):
-            st.dataframe(
-                duplicados_archivo[["N_MUESTRA", "COMPONENTE", "FECHA_INFORME", "Archivo_Origen"]],
-                use_container_width=True,
-            )
 
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -769,18 +734,7 @@ if files:
                 use_container_width=True,
             )
 
-    accion = st.radio(
-        "Seleccione cómo desea continuar",
-        [
-            "Cargar solo registros nuevos",
-            "Actualizar registros existentes y cargar todo el archivo",
-        ],
-        index=0,
-    )
-
     df_cargar = nuevos_df.copy()
-    if accion == "Actualizar registros existentes y cargar todo el archivo":
-        df_cargar = df_final_limpio.copy()
 
     st.info(f"Registros que se cargarán: {len(df_cargar)}")
 
@@ -792,9 +746,6 @@ if files:
         else:
             try:
                 with st.spinner("Cargando datos. Por favor espere..."):
-                    if accion == "Actualizar registros existentes y cargar todo el archivo" and len(existentes_df) > 0:
-                        eliminar_registros_existentes(existentes_df["N_MUESTRA"].tolist())
-
                     total_cargados = cargar_registros(df_cargar, batch_size=300)
 
                 st.markdown(
@@ -811,6 +762,6 @@ if files:
     st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown(
-    '<div class="footer-note">Mobil LubeSoporte · Herramienta interna para alimentación del chatbot.</div>',
+    '<div class="footer-note">Mobil LubeSoporte · Herramienta interna para alimentar el chatbot. La base realizará su control automático posterior.</div>',
     unsafe_allow_html=True,
 )
