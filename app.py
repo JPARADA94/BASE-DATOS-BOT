@@ -19,6 +19,49 @@ st.set_page_config(
 )
 
 
+
+# =========================================================
+# PROTECCIÓN CON CONTRASEÑA
+# =========================================================
+PASSWORD_APP = "1256"
+
+if "autenticado" not in st.session_state:
+    st.session_state.autenticado = False
+
+if not st.session_state.autenticado:
+    st.markdown(
+        """
+        <div style="
+            background: linear-gradient(135deg, #0B2E63 0%, #003A8F 70%, #D71920 100%);
+            padding: 35px;
+            border-radius: 24px;
+            color: white;
+            text-align: center;
+            margin-top: 80px;
+            box-shadow: 0 14px 34px rgba(11,46,99,0.22);
+        ">
+            <h1>🔒 Acceso restringido</h1>
+            <p>Ingresa la contraseña para utilizar el sistema.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    password_input = st.text_input(
+        "Contraseña",
+        type="password",
+        placeholder="Ingresa la contraseña"
+    )
+
+    if st.button("Ingresar"):
+        if password_input == PASSWORD_APP:
+            st.session_state.autenticado = True
+            st.rerun()
+        else:
+            st.error("❌ Contraseña incorrecta")
+
+    st.stop()
+
 # =========================================================
 # ESTILO VISUAL SIMPLE / MOBIL
 # =========================================================
